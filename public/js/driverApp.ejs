@@ -1,0 +1,23 @@
+const socket = io(); // Establish WebSocket connection
+
+// Driver periodically sends location updates to the server
+const updateDriverLocation = () => {
+    if (navigator.geolocation) {
+        navigator.geolocation.watchPosition((position) => {
+            const { latitude, longitude } = position.coords;
+            socket.emit('locationUpdate', {
+                role: 'driver',
+                latitude,
+                longitude,
+                teammateSocketId: TEAMMATE_SOCKET_ID, // Replace with chaser's socket ID
+            });
+        }, (error) => {
+            console.error('Error obtaining location:', error);
+        });
+    } else {
+        console.error('Geolocation is not supported by this browser.');
+    }
+};
+
+// Start sending location updates
+updateDriverLocation();

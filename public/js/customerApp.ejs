@@ -1,0 +1,16 @@
+const socket = io(); // Establish WebSocket connection
+
+// Listen for driver's location updates
+socket.on('driverLocationUpdate', (data) => {
+    console.log(`Driver Location: Latitude ${data.latitude}, Longitude ${data.longitude}`);
+    updateMap(data.latitude, data.longitude); // Update the map with the driver's location
+});
+
+// Update the map with the driver's location
+const updateMap = (latitude, longitude) => {
+    const driverMarker = new google.maps.Marker({
+        position: { lat: latitude, lng: longitude },
+        map: MAP_INSTANCE,
+        title: 'Driver Location',
+    });
+};

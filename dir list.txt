@@ -1,0 +1,56 @@
+/project-root
+├── /controllers
+│   ├── adminController.js
+│   ├── authController.js
+│   ├── driverController.js
+│   ├── rideController.js
+│   ├── userController.js
+├── /middleware
+│   ├── authMiddleware.js
+│   ├── validatePhone.js
+│   ├── vehicleMiddleware.js
+├── /models
+│   ├── AdminSettings.js
+│   ├── Analytics.js
+│   ├── Driver.js
+│   ├── Ride.js
+│   ├── User.js
+├── /routes
+│   ├── admin.js
+│   ├── auth.js
+│   ├── driver.js
+│   ├── rides.js
+│   ├── users.js
+├── /services
+│   ├── rideService.js
+│   ├── paymentService.js
+├── /public
+│   ├── /css
+│   │   ├── styles.css
+│   ├── /js
+│   │   ├── driverApp.js
+│   │   ├── customerApp.js
+├── /views
+│   ├── /admin
+│   │   ├── analytics.ejs
+│   │   ├── customerSearch.ejs
+│   │   ├── driverProfile.ejs
+│   │   ├── map.ejs
+│   │   ├── settings.ejs
+│   ├── /customer
+│   │   ├── rideCompletion.ejs
+│   │   ├── rideTracking.ejs
+│   ├── /driver
+│   │   ├── setupTeam.ejs
+│   │   ├── seeRoute.ejs
+│   ├── /partials
+│   │   ├── header.ejs
+│   │   ├── footer.ejs
+│   ├── /users
+│   │   ├── login.ejs
+│   │   ├── profile.ejs
+│   │   ├── requestRide.ejs
+│   │   ├── signup.ejs
+├── server.js
+├── package.json
+├── README.md

@@ -1,0 +1,32 @@
+<h2>Route Tracking</h2>
+<div id="map" style="width: 100%; height: 500px;"></div>
+
+<script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY"></script>
+<script>
+    const map = new google.maps.Map(document.getElementById('map'), {
+        center: { lat: ROUTE_CENTER_LATITUDE, lng: ROUTE_CENTER_LONGITUDE }, // Replace with route center
+        zoom: 14,
+    });
+
+    const driverMarker = new google.maps.Marker({
+        map,
+        title: 'Driver',
+        icon: 'https://maps.google.com/mapfiles/ms/icons/blue-dot.png',
+    });
+
+    const chaserMarker = new google.maps.Marker({
+        map,
+        title: 'Chaser',
+        icon: 'https://maps.google.com/mapfiles/ms/icons/red-dot.png',
+    });
+
+    // Listen for updates on driver location
+    socket.on('driverLocationUpdate', (data) => {
+        driverMarker.setPosition({ lat: data.latitude, lng: data.longitude });
+    });
+
+    // Listen for updates on chaser location
+    socket.on('chaserLocationUpdate', (data) => {
+        chaserMarker.setPosition({ lat: data.latitude, lng: data.longitude });
+    });
+</script>

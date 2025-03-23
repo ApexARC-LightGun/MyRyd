@@ -1,0 +1,26 @@
+<h2>Request a Ride</h2>
+<form action="/rides/request" method="POST">
+    <label for="pickupLocation">Pickup Location:</label>
+    <input type="text" name="pickupLocation" id="pickupLocation" placeholder="Enter Pickup Location" required>
+
+    <label for="stops">Stops (Optional):</label>
+    <input type="text" name="stops" id="stops" placeholder="Enter Stops (if any)">
+
+    <label for="dropoffLocation">Dropoff Location:</label>
+    <input type="text" name="dropoffLocation" id="dropoffLocation" placeholder="Enter Dropoff Location" required>
+
+    <label for="vehicle">Select Vehicle:</label>
+    <select name="selectedVehicle" id="vehicle">
+        <% user.vehicles.forEach(vehicle => { %>
+        <option value="<%= vehicle._id %>"><%= vehicle.make %> - <%= vehicle.model %> (<%= vehicle.licensePlate %>)</option>
+        <% }); %>
+    </select>
+
+    <label for="paymentMethod">Payment Method:</label>
+    <select name="paymentMethod" id="paymentMethod">
+        <option value="card">Card (Prepay)</option>
+        <option value="cash">Cash</option>
+    </select>
+
+    <button type="submit">Request Ride</button>
+</form>

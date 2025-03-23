@@ -1,0 +1,13 @@
+<h2>Setup Your Team</h2>
+<form action="/driver/setupTeam" method="POST">
+    <label for="role">Select Your Role:</label>
+    <select name="role" id="role" required>
+        <option value="driver">Driver</option>
+        <option value="chaser">Chaser</option>
+    </select>
+
+    <label for="teammateUsername">Teammate's Username:</label>
+    <input type="text" name="teammateUsername" id="teammateUsername" placeholder="Enter Teammate Username" required>
+
+    <button type="submit">Save Team</button>
+</form>

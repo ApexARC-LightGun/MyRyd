@@ -1,0 +1,23 @@
+<h2>Customer Search Results</h2>
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Phone</th>
+            <th>License Plate</th>
+            <th>Revenue</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        <% customers.forEach(customer => { %>
+        <tr>
+            <td><%= customer.name %></td>
+            <td><%= customer.phone %></td>
+            <td><%= customer.vehicles.map(v => v.licensePlate).join(', ') %></td>
+            <td>$<%= customer.revenue.toFixed(2) %></td>
+            <td><a href="/admin/customers/<%= customer._id %>">View Profile</a></td>
+        </tr>
+        <% }); %>
+    </tbody>
+</table>

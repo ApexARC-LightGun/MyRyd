@@ -1,0 +1,41 @@
+<h2>Real-Time Map</h2>
+<div id="map" style="width: 100%; height: 600px;"></div>
+
+<script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY"></script>
+<script>
+    const map = new google.maps.Map(document.getElementById('map'), {
+        center: { lat: 40.7128, lng: -74.0060 }, // Default center (e.g., New York City)
+        zoom: 12,
+    });
+
+    const driverMarkers = {};
+    const customerMarkers = {};
+
+    // Listen for driver location updates
+    socket.on('driverLocationUpdate', (data) => {
+        if (!driverMarkers[data.driverId]) {
+            driverMarkers[data.driverId] = new google.maps.Marker({
+                position: { lat: data.latitude, lng: data.longitude },
+                map: map,
+                title: `Driver: ${data.driverId}`,
+                icon: 'https://maps.google.com/mapfiles/ms/icons/blue-dot.png',
+            });
+        } else {
+            driverMarkers[data.driverId].setPosition({ lat: data.latitude, lng: data.longitude });
+        }
+    });
+
+    // Listen for customer location updates
+    socket.on('customerLocationUpdate', (data) => {
+        if (!customerMarkers[data.customerId]) {
+            customerMarkers[data.customerId] = new google.maps.Marker({
+                position: { lat: data.latitude, lng: data.longitude },
+                map: map,
+                title: `Customer: ${data.customerId}`,
+                icon: 'https://maps.google.com/mapfiles/ms/icons/red-dot.png',
+            });
+        } else {
+            customerMarkers[data.customerId].setPosition({ lat: data.latitude, lng: data.longitude });
+        }
+    });
+</script>

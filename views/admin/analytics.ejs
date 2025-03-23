@@ -1,0 +1,33 @@
+<h2>Analytics Dashboard</h2>
+
+<div>
+    <p><strong>Total Rides:</strong> <%= analytics.totalRides %></p>
+    <p><strong>Total Earnings:</strong> $<%= analytics.totalEarnings.toFixed(2) %></p>
+    <p><strong>Total Wait Time:</strong> <%= analytics.totalWaitTime %> minutes</p>
+    <p><strong>Total Drive Time:</strong> <%= analytics.totalDriveTime %> minutes</p>
+    <p><strong>Total Distance Covered:</strong> <%= analytics.totalDistance.toFixed(2) %> km</p>
+</div>
+
+<h3>Recent Rides</h3>
+<table>
+    <thead>
+        <tr>
+            <th>Ride ID</th>
+            <th>Cost</th>
+            <th>Wait Time (min)</th>
+            <th>Expected Drive Time (min)</th>
+            <th>Actual Drive Time (min)</th>
+        </tr>
+    </thead>
+    <tbody>
+        <% analytics.rideSummaries.slice(-10).forEach((ride) => { %>
+        <tr>
+            <td><%= ride.rideId %></td>
+            <td>$<%= ride.rideCost.toFixed(2) %></td>
+            <td><%= ride.waitTime %></td>
+            <td><%= ride.driveTimeExpected %></td>
+            <td><%= ride.driveTimeActual %></td>
+        </tr>
+        <% }); %>
+    </tbody>
+</table>

@@ -1,0 +1,26 @@
+<h2>Ride Tracking</h2>
+<p>Driver Location: <span id="driverLocation">Fetching...</span></p>
+<p>Total Wait Cost: <span id="waitCost">$0.00</span></p>
+
+<div id="map" style="width: 100%; height: 400px;"></div>
+
+<script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY"></script>
+<script>
+    const map = new google.maps.Map(document.getElementById('map'), {
+        center: { lat: PICKUP_LATITUDE, lng: PICKUP_LONGITUDE }, // Replace with pickup location
+        zoom: 12,
+    });
+
+    const driverMarker = new google.maps.Marker({ map });
+
+    // Listen for driver's location updates
+    socket.on('driverLocationUpdate', (data) => {
+        driverMarker.setPosition({ lat: data.latitude, lng: data.longitude });
+        document.getElementById('driverLocation').innerText = `${data.latitude}, ${data.longitude}`;
+    });
+
+    // Update total wait cost
+    socket.on('waitCostUpdate', (data) => {
+        document.getElementById('waitCost').innerText = `$${data.waitCost.toFixed(2)}`;
+    });
+</script>

@@ -1,0 +1,40 @@
+<h2>Admin Settings</h2>
+
+<h3>Ride Assignment Preferences</h3>
+<form action="/admin/settings" method="POST">
+    <label for="assignmentOption">Assignment Option:</label>
+    <select name="assignmentOption" id="assignmentOption">
+        <option value="queue" <%= settings.assignmentOption === 'queue' ? 'selected' : '' %>>Queue-Based</option>
+        <option value="closest" <%= settings.assignmentOption === 'closest' ? 'selected' : '' %>>Closest Driver</option>
+        <option value="hybrid" <%= settings.assignmentOption === 'hybrid' ? 'selected' : '' %>>Hybrid</option>
+    </select>
+
+    <label for="acceptableWaitBuffer">Acceptable Wait Buffer (minutes):</label>
+    <input type="number" name="acceptableWaitBuffer" id="acceptableWaitBuffer" value="<%= settings.acceptableWaitBuffer %>" required>
+
+    <button type="submit">Save Preferences</button>
+</form>
+
+<h3>Ride Pricing</h3>
+<form action="/admin/settings/pricing" method="POST">
+    <label for="minimumPrice">Minimum Price (1km or less):</label>
+    <input type="number" step="0.01" name="minimumPrice" id="minimumPrice" value="<%= settings.minimumPrice %>" required>
+
+    <label for="costPerExtraUnit">Cost per 0.2km after 1km:</label>
+    <input type="number" step="0.01" name="costPerExtraUnit" id="costPerExtraUnit" value="<%= settings.costPerExtraUnit %>" required>
+
+    <label for="costPerMinute">Cost Per Minute:</label>
+    <input type="number" step="0.01" name="costPerMinute" id="costPerMinute" value="<%= settings.costPerMinute %>" required>
+
+    <label for="waitGraceTime">Grace Period (minutes):</label>
+    <input type="number" name="waitGraceTime" id="waitGraceTime" value="<%= settings.waitGraceTime %>" required>
+
+    <button type="submit">Save Pricing Settings</button>
+</form>
+
+<h3>Tip Options</h3>
+<form action="/admin/settings/tips" method="POST">
+    <label for="tipOptions">Tip Options (comma-separated percentages):</label>
+    <input type="text" name="tipOptions" id="tipOptions" placeholder="e.g., 10,15,20" value="<%= settings.tipOptions.join(',') %>" required>
+    <button type="submit">Update Tip Options</button>
+</form>

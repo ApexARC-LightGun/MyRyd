@@ -1,0 +1,34 @@
+<h2>Driver/Chaser Profile</h2>
+<p><strong>Name:</strong> <%= driver.name %></p>
+<p><strong>Email:</strong> <%= driver.email %></p>
+<p><strong>Revenue:</strong> $<%= driver.revenue.toFixed(2) %></p>
+<p><strong>Status:</strong> <%= driver.status %></p>
+
+<h3>Ride History</h3>
+<table>
+    <thead>
+        <tr>
+            <th>Ride ID</th>
+            <th>Customer</th>
+            <th>Revenue</th>
+        </tr>
+    </thead>
+    <tbody>
+        <% history.forEach(ride => { %>
+        <tr>
+            <td><%= ride._id %></td>
+            <td><%= ride.user.name %></td>
+            <td>$<%= ride.cost.toFixed(2) %></td>
+        </tr>
+        <% }); %>
+    </tbody>
+</table>
+
+<form action="/admin/drivers/<%= driver._id %>/status" method="POST">
+    <label for="status">Update Status:</label>
+    <select name="status" id="status">
+        <option value="active" <%= driver.status === 'active' ? 'selected' : '' %>>Active</option>
+        <option value="suspended" <%= driver.status === 'suspended' ? 'selected' : '' %>>Suspended</option>
+    </select>
+    <button type="submit">Update Status</button>
+</form>
