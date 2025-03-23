@@ -16,4 +16,4 @@ A modern ride-sharing platform with features like real-time location tracking, r
 ## Installation
 1. Clone this repository:
    ```bash
-   git clone https://github.com/your-username/ride-sharing-app.git
+   [git clone https://github.com/ApexARC-LightGun/MyRyd]
