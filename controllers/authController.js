@@ -25,9 +25,12 @@ const signUp = async (req, res) => {
         });
 
         await user.save();
-        res.status(201).json({ message: 'User registered successfully', user });
+
+        // Redirect to login page after successful signup
+        res.redirect('/auth/login');
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        console.error('Error during signup:', error);
+        res.status(500).render('partials/error', { message: 'An unexpected error occurred during signup.' });
     }
 };
 
@@ -39,21 +42,23 @@ const login = async (req, res) => {
         // Check if user exists
         const user = await User.findOne({ email });
         if (!user) {
-            return res.status(400).json({ message: 'Invalid email or password' });
+            return res.status(400).render('users/login', { message: 'Invalid email or password.' });
         }
 
         // Verify the password
         const isPasswordValid = await bcrypt.compare(password, user.password);
         if (!isPasswordValid) {
-            return res.status(400).json({ message: 'Invalid email or password' });
+            return res.status(400).render('users/login', { message: 'Invalid email or password.' });
         }
 
         // Generate a JWT token for authentication
         const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '1d' });
 
-        res.status(200).json({ message: 'Login successful', token });
+        // Redirect to profile or dashboard page after successful login
+        res.redirect('/users/profile');
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        console.error('Error during login:', error);
+        res.status(500).render('partials/error', { message: 'An unexpected error occurred during login.' });
     }
 };
 
