@@ -1,44 +1,45 @@
-const square = require('square'); // Square SDK
-const Ride = require('../models/Ride');
+const { SquareClient, SquareEnvironment, SquareError } = require('square'); // Import necessary objects
+require('dotenv').config(); // Load environment variables from .env file
 
-// Initialize Square client
-const client = new square.Client({
-    accessToken: process.env.SQUARE_ACCESS_TOKEN, // Store securely in `.env`
-    environment: 'sandbox', // Use 'production' for live payments
+// Initialize the Square Client
+const client = new SquareClient({
+    token: process.env.SQUARE_ACCESS_TOKEN, // Use the token from your .env file
+    environment: SquareEnvironment.Sandbox, // Use Sandbox for testing or SquareEnvironment.Production for live
 });
 
-// Process card payment
-const processCardPayment = async (rideId, paymentAmount) => {
+// Function to process card payments
+const processCardPayment = async (rideId, paymentAmount, sourceId) => {
     try {
-        const paymentsApi = client.paymentsApi;
-
-        // Create a payment request
-        const response = await paymentsApi.createPayment({
-            sourceId: 'CARD_SOURCE_ID', // Replace with card token from frontend
+        const response = await client.payments.createPayment({
+            sourceId: sourceId, // Tokenized card details from the frontend
+            idempotencyKey: `ride-${rideId}`, // Unique key to prevent duplicate charges
             amountMoney: {
-                amount: paymentAmount * 100, // Amount in cents
-                currency: 'USD',
+                amount: paymentAmount, // Payment amount in cents (e.g., $10 = 1000)
+                currency: 'USD', // Specify currency
             },
-            idempotencyKey: `ride-${rideId}`, // Ensure payment is processed only once
         });
 
+        // Return success response
         return {
             success: true,
-            transactionId: response.result.payment.id,
+            transactionId: response.payment.id, // Payment successful, return transaction ID
         };
     } catch (error) {
-        console.error('Payment error:', error);
-        return { success: false, error: error.message };
+        if (error instanceof SquareError) {
+            error.errors.forEach((e) => {
+                console.error(`Error [${e.category}]: ${e.code} - ${e.detail}`);
+            });
+        } else {
+            console.error('Unexpected error occurred:', error); // Log any unexpected errors
+        }
+        return { success: false, error: error.message }; // Return error message
     }
 };
 
-// Log cash payment
+// Function to log cash payments (optional)
 const logCashPayment = async (rideId, paymentAmount) => {
-    // Record the cash payment manually
-    return {
-        success: true,
-        transactionId: null, // No transaction ID for cash
-    };
+    console.log(`Cash payment recorded for Ride ID: ${rideId}, Amount: $${(paymentAmount / 100).toFixed(2)}`);
+    return { success: true, transactionId: null }; // No transaction ID for cash payments
 };
 
 module.exports = { processCardPayment, logCashPayment };

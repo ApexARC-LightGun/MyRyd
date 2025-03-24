@@ -1,101 +1,89 @@
-const Ride = require('../models/Ride');
-const AdminSettings = require('../models/AdminSettings');
-const { processCardPayment, logCashPayment } = require('../services/paymentService');
-const { calculateRideCost } = require('../services/rideService');
+const Ride = require('../models/Ride'); // Import Ride model
+const { processCardPayment, logCashPayment } = require('../services/paymentService'); // Import payment services
+const { calculateRideCost } = require('../services/rideService'); // Import ride cost calculation service
 
 // Request a ride
 const requestRide = async (req, res) => {
     try {
-        const { pickupLocation, stops, dropoffLocation, selectedVehicle, paymentMethod } = req.body;
-
-        // Calculate estimated cost
-        const estimatedDistance = calculateDistance(pickupLocation, dropoffLocation, stops);
-        const cost = calculateRideCost(estimatedDistance, ADMIN_MINIMUM_PRICE, ADMIN_COST_PER_UNIT, 0);
-
-        // Prepayment logic
-        let paymentResult;
-        if (paymentMethod === 'card') {
-            paymentResult = await processCardPayment('ride-request-prepay', cost);
-            if (!paymentResult.success) {
-                return res.status(400).json({ message: 'Prepayment failed', error: paymentResult.error });
-            }
+        // Validate request body fields
+        const { pickupLocation, dropoffLocation, paymentMethod, sourceId } = req.body;
+        if (!pickupLocation || !dropoffLocation || !paymentMethod) {
+            return res.status(400).json({ message: 'Missing required fields.' });
         }
 
-        // Create the ride
-        const ride = new Ride({
-            user: req.user._id,
+        // Calculate ride cost (example calculation function)
+        const rideCost = calculateRideCost(pickupLocation, dropoffLocation);
+
+        // Process payment
+        let paymentResult;
+        if (paymentMethod === 'card') {
+            if (!sourceId) {
+                return res.status(400).json({ message: 'Missing card source ID for payment.' });
+            }
+
+            paymentResult = await processCardPayment('example-ride-id', rideCost, sourceId);
+
+            if (!paymentResult.success) {
+                return res.status(400).json({ message: 'Payment failed', error: paymentResult.error });
+            }
+        } else if (paymentMethod === 'cash') {
+            paymentResult = await logCashPayment('example-ride-id', rideCost);
+        } else {
+            return res.status(400).json({ message: 'Invalid payment method.' });
+        }
+
+        // Additional logic to create a ride (storing data, etc.)
+        const newRide = new Ride({
+            user: req.user._id, // Ensure req.user is populated by authentication middleware
             pickupLocation,
-            stops,
             dropoffLocation,
-            cost,
-            prepaymentAmount: paymentMethod === 'card' ? cost : 0,
+            cost: rideCost,
             paymentStatus: paymentMethod === 'card' ? 'prepaid' : 'pending',
             paymentMethod,
         });
 
-        await ride.save();
-        res.status(201).json({ message: 'Ride requested successfully with prepayment', ride });
+        await newRide.save();
+
+        res.status(201).json({ message: 'Ride requested successfully', ride: newRide });
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        console.error('Error requesting ride:', error);
+
+        // Avoid exposing internal details to the client
+        res.status(500).json({ message: 'An unexpected error occurred. Please try again.' });
     }
 };
 
-// Complete ride
+// Complete a ride
 const completeRide = async (req, res) => {
     try {
-        const { rideId, tipAmount } = req.body; // Tip amount from the customer
+        const { rideId } = req.body; // Extract the ride ID from the request
+
+        if (!rideId) {
+            return res.status(400).json({ message: 'Ride ID is required.' });
+        }
+
+        // Fetch the ride from the database
         const ride = await Ride.findById(rideId);
-
         if (!ride) {
-            return res.status(404).json({ message: 'Ride not found' });
+            return res.status(404).json({ message: 'Ride not found.' });
         }
 
-        // Final cost calculation
-        const finalDistance = ride.distanceFromOdometer || ride.distanceCalculated; // Use odometer if available
-        const finalCost = calculateRideCost(finalDistance, ADMIN_MINIMUM_PRICE, ADMIN_COST_PER_UNIT, ride.waitCost);
-
-        let balanceDue = 0;
-        let refundAmount = 0;
-        if (ride.prepaymentAmount > finalCost) {
-            refundAmount = ride.prepaymentAmount - finalCost;
-        } else if (ride.prepaymentAmount < finalCost) {
-            balanceDue = finalCost - ride.prepaymentAmount;
+        if (ride.status === 'completed') {
+            return res.status(400).json({ message: 'Ride is already completed.' });
         }
 
-        // Update ride with final costs and tip
-        ride.balanceDue = balanceDue;
-        ride.refundAmount = refundAmount;
-        ride.tipAmount = tipAmount;
-        ride.paymentStatus = balanceDue > 0 ? 'pending' : 'completed';
+        // Update ride status to completed
         ride.status = 'completed';
         await ride.save();
 
-        // Distribute tip between driver and chaser
-        const driverShare = tipAmount * 0.7; // 70% to driver
-        const chaserShare = tipAmount * 0.3; // 30% to chaser
-
-        const driver = await Driver.findById(ride.driver);
-        const chaser = await Driver.findById(ride.chaser);
-
-        if (driver) {
-            driver.revenue += driverShare;
-            await driver.save();
-        }
-
-        if (chaser) {
-            chaser.revenue += chaserShare;
-            await chaser.save();
-        }
-
-        res.status(200).json({
-            message: 'Ride completed with tip processed',
-            ride,
-            balanceDue,
-            refundAmount,
-        });
+        res.status(200).json({ message: 'Ride completed successfully', ride });
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        console.error('Error completing ride:', error);
+
+        // Avoid exposing internal details to the client
+        res.status(500).json({ message: 'An unexpected error occurred. Please try again.' });
     }
 };
 
+// Export both controller functions
 module.exports = { requestRide, completeRide };
